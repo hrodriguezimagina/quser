@@ -1,5 +1,6 @@
 <template>
   <div id="authWrapperPage">
+    <p>login</p>
     <div class="row">
       <!--Auth Banner-->
       <div v-if="settings.authBanner" class="wrapp__banner col-12 col-md-4"
@@ -133,6 +134,7 @@ export default {
       return this.$getSetting('iprofile::microsoftClientId')
     },
     allowLocalLogin() {
+      return true
       return Boolean(Number(this.$getSetting('iprofile::allowLocalLogin')))
     },
     modeAuthType() {
