@@ -15,7 +15,9 @@ import notificationPlugin from 'modules/qnotification/_plugins/notification'
 //Request Login
 export const AUTH_REQUEST = ({ commit, dispatch, state }, authData) => {
   return new Promise(async (resolve, reject) => {
-    let dataRequest = { username: authData.username, password: authData.password, device: helper.detectDevice() }
+    let dataRequest = {
+      attributes: { email: authData.username, password: authData.password, device: helper.detectDevice() }
+    }
     axios.defaults.headers.common['Authorization'] = null;
     //Request login
     axios.defaults.params.setting.authProvider = 'local';

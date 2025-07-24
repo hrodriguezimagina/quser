@@ -42,7 +42,7 @@
                :to="{name : 'auth.register',query : this.$route.query}" color="blue-grey-1" text-color="blue-grey"
                rounded/>
         <!-- Button login -->
-        <q-btn :loading="loading" type="submit" color="primary" rounded unelevated no-caps>
+        <q-btn :loading="loading" type="submit" color="red" rounded unelevated no-caps>
           {{ $tr('iprofile.cms.label.login') }}
           <template v-slot:loading>
             <q-spinner-oval/>
@@ -109,6 +109,7 @@ export default {
       }
     },
     withRegister() {
+      return true
       let hasSetting = this.$getSetting('iprofile::registerUsers')
       return (hasSetting && parseInt(hasSetting)) /*&& (config('app.mode') == 'ipanel'))*/ ? true : false
     }

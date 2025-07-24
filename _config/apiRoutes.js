@@ -7,7 +7,7 @@ export default {
   version: moduleVersion,
   me: `${urlBase}/auth/me`,
   mustChangePassword: `${urlBase}/auth/must-change-password`,
-  authLogin: `${urlBase}/auth/login`,
+  authLogin: `/iuser/v1/auth/login`,
   authLoginSocialNetwork: `${urlBase}/auth/social/{type}`,
   authReset: `${urlBase}/auth/reset`,
   authChanged: `${urlBase}/auth/reset-complete`,
