@@ -46,7 +46,11 @@ export const userRolesSelect = (state) => {
 
 export const userDepartmentsSelect = (state) => {
   let userData = state.userData
-  let departments = userData ? userData.departments : []
+  console.log(state.userData)
+  let departments = userData?.departments || []
+  console.log('-------->')
+  console.log(departments)
+  console.log(array.tree(departments))
   return array.tree(departments)
 }
 

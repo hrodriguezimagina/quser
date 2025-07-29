@@ -1,8 +1,10 @@
 export const AUTH_SUCCESS = (state, data) => {
-  state.userData = data.userData
-  state.userToken = data.userToken
-  state.userId = data.userData.id
-  state.organizations = data.userData.organizations || []
+  console.log(data)
+  
+  state.userData = data.user
+  state.userToken = `${data.token.tokenType} ${data.token.accessToken}`
+  state.userId = data?.user?.id
+  state.organizations = data.userData?.organizations || []
   state.authenticated = true
 }
 
