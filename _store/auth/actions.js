@@ -11,6 +11,7 @@ import config from 'src/setup/plugin'
 import { uid } from 'quasar'
 import { getTokenFirebase } from 'modules/qnotification/_plugins/firebase.js'
 import notificationPlugin from 'modules/qnotification/_plugins/notification'
+import { user } from './getters'
 
 //Request Login
 export const AUTH_REQUEST = ({ commit, dispatch, state }, authData) => {
@@ -23,7 +24,13 @@ export const AUTH_REQUEST = ({ commit, dispatch, state }, authData) => {
     //Request login
     axios.defaults.params.setting.authProvider = 'local';
     crud.post('apiRoutes.quser.authLogin', dataRequest).then(async response => {
-      await dispatch('AUTH_SUCCESS', response.data)
+
+      const data = response.data 
+      await dispatch('AUTH_SUCCESS', {
+          expiresIn: data.token.expiresIn,
+          userData: data.user,
+          userToken: data.token.accessToken
+      })
       resolve(true)
     }).catch(error => {
       reject(error)
@@ -51,6 +58,7 @@ export const AUTH_SOCIAL_NETWORK = ({ dispatch, state }, params) => {
 
 //Set user Data
 export const AUTH_SUCCESS = ({ commit, dispatch, state }, data = false) => {
+  console.log(' =>>>>AUTH_SUCCESS')
   return new Promise(async (resolve, reject) => {
     try {
       //Validate if is impersonating
@@ -59,13 +67,15 @@ export const AUTH_SUCCESS = ({ commit, dispatch, state }, data = false) => {
 
       //Search sesion data in storage if not exist
       data = data || await cache.get.item('sessionData')
+      console.log(data)
       if (data) {
         commit('AUTH_SUCCESS', data)//commit userdata in store
         await dispatch('SET_ROLE_DEPARTMENT')//Set role and department
         await dispatch('SET_PERMISSIONS')//Set Permissions
         await dispatch('SET_SETTINGS')//Set settings
 
-        axios.defaults.headers.common['Authorization'] = data.userToken//Set default headers to axios
+        axios.defaults.headers.common['Authorization'] = `${data.userToken}`//Set default headers to axios
+        console.log(data)
         axios.defaults.params.setting.authProvider = sessionStorage.getItem('socialType') || 'local';
         await cache.set('sessionData', data)//Save session data in storage
         if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
@@ -76,8 +86,8 @@ export const AUTH_SUCCESS = ({ commit, dispatch, state }, data = false) => {
         }
         commit('SET_AUTHENTICATED')
         await dispatch('SET_ORGANIZATION')//Set settings
-        await getTokenFirebase(data.user.id);
-        new notificationPlugin(store);
+        //v12 await getTokenFirebase(data.userData.id);
+        //v12 new notificationPlugin(store);
         return resolve(true)//Resolve
       } else {
         console.info('[AUTH_SUCCESS]::LOGOUT')
@@ -207,8 +217,12 @@ export const AUTH_TRYAUTOLOGIN = ({ commit, dispatch, state }) => {
   return new Promise(async (resolve, reject) => {
     try {
       let sessionData = await cache.get.item('sessionData')
+      console.log('AUTH_TRYAUTOLOGIN')
+      console.log(sessionData)
       //Validate session data
-      if (!sessionData || !sessionData.userData || (helper.timestamp(sessionData.expiresIn) <= helper.timestamp())) {
+      //v12 if (!sessionData || !sessionData.userData || (helper.timestamp(sessionData.expiresIn) <= helper.timestamp())) {        
+      if (!sessionData || !sessionData.userData) {        
+        console.log('logout')
         dispatch('AUTH_LOGOUT')//Logout
         return resolve(false)//Close if there isn't token
       }
@@ -229,6 +243,7 @@ export const AUTH_UPDATE = ({ commit, dispatch, state }) => {
   return new Promise(async (resolve, reject) => {
     try {
       let sessionData = await cache.get.item('sessionData')//Get  session Data
+      console.log(sessionData)
       //Validate session data
       if (!sessionData) {
         dispatch('AUTH_LOGOUT')//Logout
@@ -236,7 +251,9 @@ export const AUTH_UPDATE = ({ commit, dispatch, state }) => {
       }
 
       //Set user token to axios
-      axios.defaults.headers.common['Authorization'] = sessionData.userToken
+      console.log('token =>>')
+      console.log(sessionData.userToken)
+      axios.defaults.headers.common['Authorization'] = `Bearer ${sessionData.userToken}`
       //Request params
       let params = {
         refresh: true,
@@ -246,7 +263,10 @@ export const AUTH_UPDATE = ({ commit, dispatch, state }) => {
       //Get userData
       crud.index('apiRoutes.quser.me', params).then(async response => {
         if (response.status != 200) return reject(true)//Logout
-        sessionData.userData = response.data.userData//Update userData of sessiondata
+        console.log(response.data)
+        sessionData.userData = response.data //Update userData of sessiondata
+        
+        
         await cache.set('sessionData', sessionData)//Update sessionData in cache
 
         //TODO dispatch global event ME

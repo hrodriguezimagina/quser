@@ -5,7 +5,8 @@ const urlBase = `/${moduleName}/${moduleVersion}`
 export default {
   urlBase: urlBase,
   version: moduleVersion,
-  me: `${urlBase}/auth/me`,
+  //me: `${urlBase}/auth/me`,
+  me: `/iuser/v1/auth/me`,
   mustChangePassword: `${urlBase}/auth/must-change-password`,
   //authLogin: `${urlBase}/auth/login`,
   authLogin: `/iuser/v1/auth/login`,  
